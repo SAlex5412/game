@@ -442,6 +442,7 @@ def check_player_enemy_collisions(player, enemies):
                 abs(player.x - enemy.x) <= 1
                 and abs(player.y - enemy.y) <= 1
                 and player.health > 0
+                and enemy.killed == False
         ):
             player.take_damage(enemy.damage)
 
@@ -905,6 +906,8 @@ while running:
                         if player_square.check_collision(enemies[i]) and enemies[i].killed is False:
                             effects[i].activate([enemies[i].x * tile_size, enemies[i].y * tile_size])
                     powerups_da["radar"] = False
+                    powerups_d["radar"] -= 1
+
                 elif powerups_d["radar"] > 0:
                     powerups_da["radar"] = True
             elif event.key == pygame.K_q:
@@ -915,6 +918,7 @@ while running:
                             enemies[i].take_damage(25)
                     print("'")
                     powerups_da["explosion"] = False
+                    powerups_d["explosion"] -= 1
 
                 elif powerups_d["explosion"] > 0:
                     powerups_da["explosion"] = True
@@ -923,6 +927,7 @@ while running:
                     player.health += 20
                     if player.health > 100:
                         player.health = 100
+                powerups_d["heal"] -= 1
 
 
         elif event.type == pygame.KEYUP:
@@ -1020,7 +1025,15 @@ while running:
         elif r == 3:
             powerups_d["heal"] += 1
         power_up.position = (-100, -100)
-    bestscore = max(bestscore, score)
+    print(bestscore)
+
+    if type(bestscore) == list:
+        if bestscore[0] != "":
+            bestscore = max(int(bestscore[0]), score)
+        else:
+            bestscore = 0
+    else:
+        bestscore = max(bestscore, score)
     # Display player's health
     health_font = pygame.font.Font(None, 36)
     health_text = health_font.render(f"Health: {player.health}", True, BLUE)
@@ -1039,7 +1052,7 @@ while running:
     reseted = False
 
 with open("save.txt", "w") as txt_file:
-    txt_file.write(score)
+    txt_file.write(str(bestscore))
 
 # Quit Pygame
 pygame.quit()
