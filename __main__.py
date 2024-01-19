@@ -5,6 +5,13 @@ from random import *
 import pygame_gui
 from PIL import Image
 
+try:
+    with open('save.txt') as f:
+        lines = f.readlines()
+except Exception:
+    lines = 0
+bestscore = lines
+
 
 class dMap:
     def __init__(self):
@@ -268,7 +275,7 @@ pygame.display.set_caption('Randomly Generated Dungeon')
 gui_manager = pygame_gui.UIManager((screen_width, map_height))
 
 # Add a scrollable list
-list_rect = pygame.Rect(map_width - 30, 0, ui_width+ 30, map_height)
+list_rect = pygame.Rect(map_width - 30, 0, ui_width + 30, map_height)
 list_container = pygame_gui.elements.UIPanel(
     relative_rect=list_rect,
     manager=gui_manager,
@@ -276,7 +283,7 @@ list_container = pygame_gui.elements.UIPanel(
 
 list_height = 20  # Height of each list item
 scrollable_list = pygame_gui.elements.UIScrollingContainer(
-    relative_rect=pygame.Rect((0, 0), (ui_width+ 30, map_height)),
+    relative_rect=pygame.Rect((0, 0), (ui_width + 30, map_height)),
     manager=gui_manager,
     container=list_container,
 )
@@ -830,6 +837,8 @@ sonara = False
 reseted = False
 
 score = 0
+
+
 def reset_duungeon():
     themap = dMap()
     themap.makeMap(startx, starty, 200, 20, 20, mrsize=7)
@@ -842,7 +851,6 @@ def reset_duungeon():
 
     dungeon_object.place_randomly(themap.mapArr, tile_size)
     power_up.place_randomly(themap.mapArr, tile_size)
-
 
 
 background = pygame.image.load("load screen.png")
@@ -895,7 +903,7 @@ while running:
                     player_square.activate(pygame.mouse.get_pos())
                     for i in range(len(effects)):
                         if player_square.check_collision(enemies[i]) and enemies[i].killed is False:
-                             effects[i].activate([enemies[i].x*tile_size, enemies[i].y*tile_size])
+                            effects[i].activate([enemies[i].x * tile_size, enemies[i].y * tile_size])
                     powerups_da["radar"] = False
                 elif powerups_d["radar"] > 0:
                     powerups_da["radar"] = True
@@ -982,15 +990,15 @@ while running:
     # effect.draw(screen)
     # Draw the GUI
     # Populate the scrollable list with some items\
-    c=0
+    c = 0
     for i, j in powerups_d.items():
         list_item = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((0, c * list_height), (ui_width+30, list_height)),
+            relative_rect=pygame.Rect((0, c * list_height), (ui_width + 30, list_height)),
             text=f'{i} {j}',
             manager=gui_manager,
             container=scrollable_list,
         )
-        c+=1
+        c += 1
     gui_manager.draw_ui(screen)
     dungeon_object.draw(screen)
     if player_moved:
@@ -1002,7 +1010,7 @@ while running:
     if dungeon_object.position == (player.x * tile_size, player.y * tile_size) and reseted is False:
         reset_duungeon()
         reseted = True
-        score +=1
+        score += 1
     if power_up.position == (player.x * tile_size, player.y * tile_size):
         r = randint(1, 3)
         if r == 1:
@@ -1012,20 +1020,26 @@ while running:
         elif r == 3:
             powerups_d["heal"] += 1
         power_up.position = (-100, -100)
-
+    bestscore = max(bestscore, score)
     # Display player's health
     health_font = pygame.font.Font(None, 36)
     health_text = health_font.render(f"Health: {player.health}", True, BLUE)
     screen.blit(health_text, (50, screen.get_height() - 50 / 2))
     score_font = pygame.font.Font(None, 36)
     score_text = score_font.render(f"Score: {score}", True, BLUE)
-    screen.blit(score_text, (300, screen.get_height()-25))
+    screen.blit(score_text, (300, screen.get_height() - 25))
+    bestscore_font = pygame.font.Font(None, 36)
+    bestscore_text = score_font.render(f"Best Score: {bestscore}", True, BLUE)
+    screen.blit(bestscore_text, (300, screen.get_height() - 50))
 
     control_volume()
     # Update the display
     pygame.display.flip()
     player_moved = False
     reseted = False
+
+with open("save.txt", "w") as txt_file:
+    txt_file.write(score)
 
 # Quit Pygame
 pygame.quit()
