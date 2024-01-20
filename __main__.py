@@ -810,7 +810,6 @@ class InstructionBox:
     def draw(self, screen_):
         x, y = (100, 100)
         self.text_metrics.draw_text(screen_, self.text, (x, y))
-        print("wtf")
 
 
 class ImageToText:
