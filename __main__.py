@@ -793,7 +793,8 @@ def reset_dungeon():
         el.killed = False
         el.last_player_position = None
         el.target_position = None
-        el.hp = randint(75 + score * 2, 100 + score * 2)
+        el.hp = randint(75 + score * 5, 100 + score * 5)
+        el.damage = randint(20 + score * 2, 40 + score * 2)
 
     dungeon_object.place_randomly(themap.mapArr, tile_size)
     power_up.place_randomly(themap.mapArr, tile_size)
@@ -810,6 +811,7 @@ class InstructionBox:
     def draw(self, screen_):
         x, y = (100, 100)
         self.text_metrics.draw_text(screen_, self.text, (x, y))
+        print("wtf")
 
 
 class ImageToText:
@@ -1077,6 +1079,8 @@ hover_image_to_text = ImageToText(hover_image_path, char_width, char_height, cha
 hover_font_images = hover_image_to_text.extract_characters()
 font_images = [image_to_surface(image, 20) for image in font_images]
 texts = TextMetrics(font_images, 0, 0)
+texts_dead = TextMetrics(font_images, 0, 0)
+is_dead = False
 while running:
     time_delta = clock.tick(60) / 1000.0
     if in_menu:
@@ -1089,6 +1093,9 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
+            if is_dead:
+                is_dead = False
+
             if event.key == pygame.K_w:
                 player.move(0, -1, enemies)  # Up
                 player_moved = True
@@ -1208,13 +1215,14 @@ while running:
 
     if player.health <= 0:
         reset_dungeon_dead()
+        is_dead = True
         score = 0
         player.health = 100
     control_volume()
     texts.draw_text(screen, f'explosion\n{powerups_d["explosion"]}\nradar\n{powerups_d["radar"]}\nheal'
                             f'\n{powerups_d["heal"]}\nbest score:{bestscore}\nscore: {score}\nhealth'
                             f': {player.health}', (520, 50))
-
+    if is_dead: texts_dead.draw_text(screen, "game\nover", (200, 200))
     pygame.display.flip()
     player_moved = False
     reseted = False
