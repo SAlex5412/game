@@ -433,7 +433,7 @@ class Enemy:
     def draw(self, screen_, player_x_, player_y_):
         if self.killed is False:
             distance = self.distance_to_player(player_x_, player_y_)
-            transparency = max(0, min(255, int((500 - distance) * 5.1 * 50 / 5)))
+            transparency = max(0, min(255, int((5 - distance) * 5.1 * 50 / 5)))
 
             enemy_surface = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
 
@@ -754,7 +754,7 @@ class PowerUp(DungeonObject):
 power_up = PowerUp((255, 165, 165), tile_size)
 power_up.place_randomly(themap.mapArr, tile_size)
 
-visibility_range = 500
+visibility_range = 100
 clock = pygame.time.Clock()
 running = True
 player_moved = False
